@@ -14,7 +14,7 @@ env:
 
 jobs:
   check-deps:
-    # CRITICAL FIX: Use the stable Ubuntu version for ROS 2 Humble
+    # Use the stable Ubuntu version for ROS 2 Humble
     runs-on: ubuntu-22.04
     
     steps:
@@ -24,7 +24,6 @@ jobs:
       - name: Install basic dependencies
         run: |
           sudo apt update
-          # Install basic tools needed for Python and rosdep
           sudo apt install -y python3-pip lsb-release curl
           
       - name: Setup ROS 2 Environment (Minimal)
@@ -38,16 +37,21 @@ jobs:
           # 3. Update rosdep sources
           rosdep update
           
-      - name: Check package dependencies
-        # rosdep now runs on the correct OS (22.04) and targets the correct distro (humble).
+      - name: Install non-rosdep Python Dependencies
         run: |
-          # Explicitly set OS name to ensure compatibility with rosdep keys.
-          # The --rosdistro argument ensures rosdep checks Humble definitions.
+          # OpenVINO is not in the rosdep database, so we install it directly.
+          # We install globally using sudo/pip to match the rosdep installation method.
+          sudo python3 -m pip install openvino-dev
+          
+      - name: Check package dependencies
+        run: |
+          # CRITICAL FIX: Use --skip-keys to ignore the non-rosdep package.
           rosdep install \
             --from-paths src \
             --ignore-src \
             -y \
             --simulate \
-            --rosdistro ${{ env.ROS_DISTRO }}
+            --rosdistro ${{ env.ROS_DISTRO }} \
+            --skip-keys "python3-openvino-dev"
             
           echo "ROS 2 dependency check passed (simulated)."
