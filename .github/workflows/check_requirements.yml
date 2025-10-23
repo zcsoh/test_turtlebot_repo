@@ -26,23 +26,20 @@ jobs:
       - name: Setup ROS 2 Environment (Minimal)
         run: |
           # 1. Install rosdep to the user's local directory
+          # Note: The modules (like rosdep2) are installed in the user's site-packages
           python3 -m pip install --user rosdep
           
-          # 2. Determine the path where the rosdep executable was installed
+          # 2. Add the user's binary path to the GitHub Actions PATH for the 'rosdep update' command
           ROSDEP_BIN_PATH=$(python3 -m site --user-base)/bin
-          
-          # 3. Add the local bin directory to the GitHub Actions PATH
           echo "$ROSDEP_BIN_PATH" >> $GITHUB_PATH
           
-          # 4. Find the absolute path of the installed rosdep executable
-          #    We use 'which' here as an alternative to 'find' which might be cleaner
-          ROSDEP_EXEC_PATH=$(which rosdep)
-
-          # 5. Initialize rosdep. This is the critical line: run the executable 
-          #    using its full path with sudo to bypass the PATH sanitization.
-          sudo "$ROSDEP_EXEC_PATH" init || true
+          # 3. Initialize rosdep. CRITICAL FIX: 
+          #    Run the rosdep module directly using python3 with sudo.
+          #    This is the most reliable way to ensure the correct Python environment
+          #    and installed packages are used by the elevated command.
+          sudo python3 -m rosdep init || true
           
-          # 6. Update rosdep sources (this should now work)
+          # 4. Update rosdep sources (this should now work)
           rosdep update
           
       - name: Check package dependencies
