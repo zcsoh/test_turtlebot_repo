@@ -1,0 +1,34 @@
+# turtlebot3.repos - Defines all external dependencies for this workspace
+repositories:
+  DynamixelSDK:
+    type: git
+    url: https://github.com/ROBOTIS-GIT/DynamixelSDK.git
+    version: ros2
+  hls_lfcd_lds_driver:
+    type: git
+    url: https://github.com/ROBOTIS-GIT/hls_lfcd_lds_driver.git
+    version: ros2
+  humanoid-robot-project:
+    type: git
+    url: https://github.com/robotis-support/humanoid-robot-project.git
+    version: ros2
+  turtlebot3:
+    type: git
+    url: https://github.com/ROBOTIS-GIT/turtlebot3.git
+    version: ros2
+  turtlebot3_msgs:
+    type: git
+    url: https://github.com/ROBOTIS-GIT/turtlebot3_msgs.git
+    version: ros2
+  turtlebot3_simulations:
+    type: git
+    url: https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git
+    version: ros2
+  realsense_gazebo_plugin:
+    type: git
+    url: https://github.com/IntelRealSense/realsense-gazebo-plugin.git
+    version: ros2
+  ugv_gazebo_sim:
+    type: git
+    url: https://github.com/osrf/ugv_gazebo_sim.git
+    version: main # Adjust branch as needed

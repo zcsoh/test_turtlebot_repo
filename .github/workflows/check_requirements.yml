@@ -1,0 +1,41 @@
+name: ROS 2 Dependency Check
+
+on:
+  push:
+    branches:
+      - main  # Or master, or your default branch
+  pull_request:
+    branches:
+      - main  # Or master, or your default branch
+
+jobs:
+  check-deps:
+    # Use a Linux environment that is easy to set up with ROS 2
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install basic dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y python3-pip
+
+      - name: Setup ROS 2 Environment (Minimal)
+        run: |
+          pip install rosdep
+
+          ROSDEP_BIN_PATH=$(python3 -m site --user-base)/bin
+          
+          echo "$ROSDEP_BIN_PATH" >> $GITHUB_PATH
+          
+          sudo env PATH=$PATH rosdep init || true
+          
+          rosdep update
+          
+      - name: Check package dependencies
+        # This command checks all packages in the src directory for missing dependencies.
+        run: |
+          rosdep install --from-paths src --ignore-src -y --simulate
+          echo "ROS 2 dependency check passed (simulated)."

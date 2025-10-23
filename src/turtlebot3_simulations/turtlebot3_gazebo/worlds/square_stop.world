@@ -1,0 +1,87 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <world name="default">
+    <include>
+      <uri>model://sun</uri>
+    </include>
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <actor name="actor">
+      <pose>5 5 0 0 0 -1.5707</pose>
+      <skin>
+        <filename>walk.dae</filename>
+      </skin>
+      <script>
+        <loop>true</loop>
+        <auto_start>true</auto_start>
+        <trajectory id="0" type="walk">
+          <waypoint>
+            <time>0.0</time>
+            <pose>5 5 0 0 0 -1.5707</pose>
+          </waypoint>
+          <waypoint>
+            <time>20.0</time>
+            <pose>5 -5 0 0 0 -1.5707</pose>
+          </waypoint>
+          
+          <waypoint>
+            <time>23.0</time>
+            <pose>5 -5 0 0 0 -3.1415</pose>
+          </waypoint>
+          
+          <waypoint>
+            <time>33.0</time>
+            <pose>5 -5 0 0 0 -3.1415</pose>
+          </waypoint>
+
+          <waypoint>
+            <time>53.0</time>
+            <pose>-5 -5 0 0 0 -3.1415</pose>
+          </waypoint>
+
+          <waypoint>
+            <time>56.0</time>
+            <pose>-5 -5 0 0 0 1.5707</pose>
+          </waypoint>
+           
+          <waypoint>
+            <time>66.0</time>
+            <pose>-5 -5 0 0 0 1.5707</pose>
+          </waypoint>
+          
+          <waypoint>
+            <time>86.0</time>
+            <pose>-5 5 0 0 0 1.5707</pose>
+          </waypoint>
+          
+          <waypoint>
+            <time>89.0</time>
+            <pose>-5 5 0 0 0 0</pose>
+          </waypoint>
+          
+          <waypoint>
+            <time>99.0</time>
+            <pose>-5 5 0 0 0 0</pose>
+          </waypoint>
+
+          <waypoint>
+            <time>119.0</time>
+            <pose>5 5 0 0 0 0</pose>
+          </waypoint>
+          
+          <waypoint>
+            <time>122.0</time>
+            <pose>5 5 0 0 0 -1.5707</pose>
+          </waypoint>
+          
+          <waypoint>
+            <time>132.0</time>
+            <pose>5 5 0 0 0 -1.5707</pose>
+          </waypoint>
+        </trajectory>
+      </script>
+    </actor>
+  </world>
+</sdf>

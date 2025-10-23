@@ -1,0 +1,20 @@
+[submodule "src/urg_node2"]
+	path = src/urg_node2
+	url = https://github.com/Hokuyo-aut/urg_node2
+[submodule "src/slam_gmapping"]
+	path = src/slam_gmapping
+	url = https://github.com/zzaid17/slam_gmapping
+[submodule "src/transport_drivers"]
+	path = src/transport_drivers
+	url = https://github.com/ros-drivers/transport_drivers
+[submodule "src/robot_localization"]
+	path = src/robot_localization
+	url = https://github.com/cra-ros-pkg/robot_localization
+	branch = humble-devel
+[submodule "src/BehaviorTree.CPP"]
+	path = src/BehaviorTree.CPP
+	url = https://github.com/BehaviorTree/BehaviorTree.CPP
+[submodule "src/navigation2"]
+	path = src/navigation2
+	url = https://github.com/ros-navigation/navigation2
+	branch = humble

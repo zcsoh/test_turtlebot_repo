@@ -1,0 +1,11 @@
+# Exclude ROS 2 build artifacts and logs
+/build/
+/install/
+/log/
+
+# Other common ROS/development files to ignore
+*.pyc
+*.o
+*.so
+.vscode/
+.DS_Store
