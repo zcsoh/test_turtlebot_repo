@@ -3,17 +3,19 @@ name: ROS 2 Dependency Check
 on:
   push:
     branches:
-      - main
+      - main  # Or master, or your default branch
   pull_request:
     branches:
-      - main
+      - main  # Or master, or your default branch
 
 env:
+  # Set the correct ROS distribution for dependency resolution
   ROS_DISTRO: humble
 
 jobs:
   check-deps:
-    runs-on: ubuntu-latest
+    # CRITICAL FIX: Use the stable Ubuntu version for ROS 2 Humble
+    runs-on: ubuntu-22.04
     
     steps:
       - name: Checkout code
@@ -22,20 +24,30 @@ jobs:
       - name: Install basic dependencies
         run: |
           sudo apt update
-          sudo apt install -y python3-pip
-
+          # Install basic tools needed for Python and rosdep
+          sudo apt install -y python3-pip lsb-release curl
+          
       - name: Setup ROS 2 Environment (Minimal)
         run: |
-          # 1. Install rosdep globally using sudo (The final fix for user/sudo conflicts)
+          # 1. Install rosdep globally (Fixes previous module/sudo errors)
           sudo python3 -m pip install rosdep
           
-          # 2. Initialize rosdep. Now works because rosdep is globally installed.
+          # 2. Initialize rosdep.
           sudo rosdep init || true
           
           # 3. Update rosdep sources
           rosdep update
           
       - name: Check package dependencies
+        # rosdep now runs on the correct OS (22.04) and targets the correct distro (humble).
         run: |
-          rosdep install --from-paths src --ignore-src -y --simulate
+          # Explicitly set OS name to ensure compatibility with rosdep keys.
+          # The --rosdistro argument ensures rosdep checks Humble definitions.
+          rosdep install \
+            --from-paths src \
+            --ignore-src \
+            -y \
+            --simulate \
+            --rosdistro ${{ env.ROS_DISTRO }}
+            
           echo "ROS 2 dependency check passed (simulated)."
