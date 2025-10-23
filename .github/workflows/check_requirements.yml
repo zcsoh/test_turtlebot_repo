@@ -3,14 +3,16 @@ name: ROS 2 Dependency Check
 on:
   push:
     branches:
-      - main  # Or master, or your default branch
+      - main
   pull_request:
     branches:
-      - main  # Or master, or your default branch
+      - main
+
+env:
+  ROS_DISTRO: humble
 
 jobs:
   check-deps:
-    # Use a Linux environment that is easy to set up with ROS 2
     runs-on: ubuntu-latest
     
     steps:
@@ -19,28 +21,21 @@ jobs:
 
       - name: Install basic dependencies
         run: |
-          # Ensure apt is up to date and install python3-pip globally
           sudo apt update
           sudo apt install -y python3-pip
 
       - name: Setup ROS 2 Environment (Minimal)
         run: |
-          # 1. CRITICAL FIX: Install rosdep globally using sudo.
-          # This avoids all PATH/PYTHONPATH conflicts between the user and sudo environments.
+          # 1. Install rosdep globally using sudo (The final fix for user/sudo conflicts)
           sudo python3 -m pip install rosdep
           
-          # 2. Add the global bin directory to the PATH for the entire job
-          # (This may not be strictly necessary, but is good practice if using a virtual environment)
-          # On Ubuntu, the global binary is usually found without explicit PATH modification.
-
-          # 3. Initialize rosdep. Now we can use the simple, clean sudo command.
+          # 2. Initialize rosdep. Now works because rosdep is globally installed.
           sudo rosdep init || true
           
-          # 4. Update rosdep sources
+          # 3. Update rosdep sources
           rosdep update
           
       - name: Check package dependencies
-        # This command checks all packages in the src directory for missing dependencies.
         run: |
           rosdep install --from-paths src --ignore-src -y --simulate
           echo "ROS 2 dependency check passed (simulated)."
