@@ -19,23 +19,32 @@ jobs:
 
       - name: Install basic dependencies
         run: |
+          # Ensure apt is up to date and install python3-pip globally
           sudo apt update
           sudo apt install -y python3-pip
 
       - name: Setup ROS 2 Environment (Minimal)
         run: |
-          pip install rosdep
+          # 1. Install rosdep to the user's local directory using the correct python3 pip
+          python3 -m pip install --user rosdep
 
+          # 2. Determine the path where the rosdep executable was installed
           ROSDEP_BIN_PATH=$(python3 -m site --user-base)/bin
           
+          # 3. Add the local bin directory to the GitHub Actions PATH for subsequent steps (like rosdep update)
           echo "$ROSDEP_BIN_PATH" >> $GITHUB_PATH
           
-          sudo env PATH=$PATH rosdep init || true
+          # 4. Initialize rosdep. We must pass the necessary path to sudo's environment 
+          #    to avoid the "ModuleNotFoundError: No module named 'rosdep2'" error.
+          #    $PATH is the updated path including $ROSDEP_BIN_PATH from the previous 'echo' command.
+          sudo env PATH="$PATH:$ROSDEP_BIN_PATH" rosdep init || true
           
+          # 5. Update rosdep sources
           rosdep update
           
       - name: Check package dependencies
         # This command checks all packages in the src directory for missing dependencies.
+        # It now uses the correctly initialized rosdep.
         run: |
           rosdep install --from-paths src --ignore-src -y --simulate
           echo "ROS 2 dependency check passed (simulated)."
