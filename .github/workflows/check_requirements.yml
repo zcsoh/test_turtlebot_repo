@@ -28,17 +28,18 @@ jobs:
           # 1. Install rosdep to the user's local directory
           python3 -m pip install --user rosdep
           
-          # 2. Determine the path where the rosdep executable was installed (e.g., /home/runner/.local/bin)
+          # 2. Determine the path where the rosdep executable was installed
           ROSDEP_BIN_PATH=$(python3 -m site --user-base)/bin
           
-          # 3. Add the local bin directory to the GitHub Actions PATH for non-sudo calls
+          # 3. Add the local bin directory to the GitHub Actions PATH
           echo "$ROSDEP_BIN_PATH" >> $GITHUB_PATH
           
           # 4. Find the absolute path of the installed rosdep executable
-          ROSDEP_EXEC_PATH=$(find "$ROSDEP_BIN_PATH" -name rosdep)
-          
-          # 5. Initialize rosdep. This is the critical fix: running the executable using its 
-          #    full path with sudo bypasses any PATH or environment issues.
+          #    We use 'which' here as an alternative to 'find' which might be cleaner
+          ROSDEP_EXEC_PATH=$(which rosdep)
+
+          # 5. Initialize rosdep. This is the critical line: run the executable 
+          #    using its full path with sudo to bypass the PATH sanitization.
           sudo "$ROSDEP_EXEC_PATH" init || true
           
           # 6. Update rosdep sources (this should now work)
