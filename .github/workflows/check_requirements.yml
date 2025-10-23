@@ -19,27 +19,27 @@ jobs:
 
       - name: Install basic dependencies
         run: |
-          # Ensure apt is up to date and install python3-pip globally
           sudo apt update
           sudo apt install -y python3-pip
 
       - name: Setup ROS 2 Environment (Minimal)
         run: |
           # 1. Install rosdep to the user's local directory
-          # Note: The modules (like rosdep2) are installed in the user's site-packages
           python3 -m pip install --user rosdep
           
-          # 2. Add the user's binary path to the GitHub Actions PATH for the 'rosdep update' command
+          # 2. Add the user's binary path to the GitHub Actions PATH for non-sudo calls (like 'rosdep update')
           ROSDEP_BIN_PATH=$(python3 -m site --user-base)/bin
           echo "$ROSDEP_BIN_PATH" >> $GITHUB_PATH
+
+          # 3. Determine the user site-packages path where the 'rosdep2' module lives
+          USER_SITE_PACKAGES=$(python3 -m site --user-site)
+
+          # 4. Initialize rosdep. CRITICAL FIX: 
+          #    We use 'sudo env PYTHONPATH=...' to explicitly tell Python where to find the 
+          #    user-installed 'rosdep' modules when running with elevated privileges.
+          sudo env PYTHONPATH="$USER_SITE_PACKAGES:$PYTHONPATH" python3 -m rosdep init || true
           
-          # 3. Initialize rosdep. CRITICAL FIX: 
-          #    Run the rosdep module directly using python3 with sudo.
-          #    This is the most reliable way to ensure the correct Python environment
-          #    and installed packages are used by the elevated command.
-          sudo python3 -m rosdep init || true
-          
-          # 4. Update rosdep sources (this should now work)
+          # 5. Update rosdep sources (this should now work)
           rosdep update
           
       - name: Check package dependencies
