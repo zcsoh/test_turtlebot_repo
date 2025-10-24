@@ -1,49 +1,78 @@
-name: ROS 2 Dependency Check
+name: ROS 2 Dependency Check and Build
 
 on:
   push:
     branches:
-      - main
+      - main  # Or master, or your default branch
   pull_request:
     branches:
-      - main
+      - main  # Or master, or your default branch
 
 env:
-  ROS_DISTRO: humble
+  # Set the correct ROS distribution for dependency resolution and package installation
+  ROS_DISTRO: humble 🥳
 
 jobs:
-  check-deps:
-    runs-on: ubuntu-22.04
+  build:
+    runs-on: ubuntu-22.04 
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions:checkout@v4
 
-      - name: Install basic dependencies
+      - name: Setup ROS 2 Environment (Humble Base)
         run: |
+          # 1. Setup locale and add ROS 2 repository
+          sudo locale-gen en_US en_US.UTF-8
+          sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+          export LANG=en_US.UTF-8
+          
           sudo apt update
-          sudo apt install -y python3-pip lsb-release curl
+          sudo apt install -y software-properties-common curl
+          sudo add-apt-repository universe
+
+          # Add ROS 2 GPG key and repository
+          sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+
+          # 2. Install ROS 2 Base, pip, and colcon extensions
+          sudo apt update
+          # ros-base provides core tools (ros2, colcon, etc.) without GUI dependencies
+          sudo apt install -y \
+            ros-${{ env.ROS_DISTRO }}-ros-base \
+            python3-pip \
+            python3-colcon-common-extensions \
+            python3-rosdep
           
-      - name: Setup ROS 2 Environment (Minimal)
-        run: |
-          sudo python3 -m pip install rosdep
-          
+          # 3. Initialize and update rosdep (now using the system-installed rosdep)
           sudo rosdep init || true
-          
           rosdep update
-          
-      - name: Install non-rosdep Python Dependencies
+
+      - name: Install custom Python Dependencies (OpenVINO)
+        # This is for packages not in the rosdep database.
         run: |
           sudo python3 -m pip install openvino-dev
           
-      - name: Check package dependencies
+      - name: Install remaining system dependencies
         run: |
+          # Source the base ROS environment before installing dependencies
+          source /opt/ros/${{ env.ROS_DISTRO }}/setup.bash
+          
+          # Install all required system dependencies (non-simulated)
           rosdep install \
             --from-paths src \
             --ignore-src \
             -y \
-            --simulate \
             --rosdistro ${{ env.ROS_DISTRO }} \
             --skip-keys "python3-openvino-dev"
             
-          echo "ROS 2 dependency check passed (simulated)."
+      - name: Perform Colcon Build 🛠️
+        run: |
+          # Source the ROS environment
+          source /opt/ros/${{ env.ROS_DISTRO }}/setup.bash
+
+          # Build the workspace
+          # We use --packages-ignore as a precaution; remove it if your build is simple.
+          colcon build --symlink-install --packages-ignore turtlebot3_manipulation_gazebo
+          
+          echo "Colcon build succeeded."
