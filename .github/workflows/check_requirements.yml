@@ -43,7 +43,7 @@ jobs:
             python3-colcon-common-extensions \
             python3-rosdep
           
-          # 3. Initialize and update rosdep (now using the system-installed rosdep)
+          # 3. Initialize and update rosdep
           sudo rosdep init || true
           rosdep update
 
@@ -56,12 +56,18 @@ jobs:
           # Source the base ROS environment before installing dependencies
           source /opt/ros/${{ env.ROS_DISTRO }}/setup.bash
 
-          # CRITICAL FIX: Attempt to repair any broken dependencies first
+          # CRITICAL FIX 1: Attempt to install the missing dependency explicitly
+          sudo apt-get update
+          sudo apt-get install -y libunwind-dev || sudo apt-get install -y libunwind7-dev || true
+
+          # CRITICAL FIX 2: Attempt to fix broken packages and autoremove
           sudo apt-get install -f
           sudo apt autoremove -y
+          
+          # CRITICAL FIX 3: Run apt update AGAIN after cleanup
+          sudo apt update
 
-          # Install all required system dependencies (non-simulated)
-          # This will now use the repaired environment.
+          # Install all required system dependencies
           rosdep install \
             --from-paths src \
             --ignore-src \
