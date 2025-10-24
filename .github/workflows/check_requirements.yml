@@ -10,7 +10,7 @@ on:
 
 env:
   # Set the correct ROS distribution for dependency resolution and package installation
-  ROS_DISTRO: humble 🥳
+  ROS_DISTRO: humble
 
 jobs:
   build:
@@ -18,7 +18,7 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions:checkout@v4
+        uses: actions/checkout@v4 
 
       - name: Setup ROS 2 Environment (Humble Base)
         run: |
@@ -49,7 +49,6 @@ jobs:
           rosdep update
 
       - name: Install custom Python Dependencies (OpenVINO)
-        # This is for packages not in the rosdep database.
         run: |
           sudo python3 -m pip install openvino-dev
           
@@ -72,7 +71,7 @@ jobs:
           source /opt/ros/${{ env.ROS_DISTRO }}/setup.bash
 
           # Build the workspace
-          # We use --packages-ignore as a precaution; remove it if your build is simple.
+          # Adjust --packages-ignore as needed for your specific workspace
           colcon build --symlink-install --packages-ignore turtlebot3_manipulation_gazebo
           
           echo "Colcon build succeeded."
